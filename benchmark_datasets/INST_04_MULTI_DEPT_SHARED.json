@@ -1,0 +1,1690 @@
+{
+  "instance_id": "INST_04_MULTI_DEPT_SHARED",
+  "seed": 101,
+  "description": "200 students, 4 halls (200 seats), 4 papers [zipfian]",
+  "profile": "zipfian",
+  "total_students": 200,
+  "total_seats": 200,
+  "utilization_rate": 100.0,
+  "largest_paper_ratio": 48.0,
+  "halls": [
+    {
+      "hall_id": 1,
+      "hall_name": "Hall A-101",
+      "block": "Block A",
+      "rows_count": 5,
+      "cols_count": 5,
+      "seats_per_bench": 2,
+      "capacity": 50
+    },
+    {
+      "hall_id": 2,
+      "hall_name": "Hall A-102",
+      "block": "Block A",
+      "rows_count": 5,
+      "cols_count": 5,
+      "seats_per_bench": 2,
+      "capacity": 50
+    },
+    {
+      "hall_id": 3,
+      "hall_name": "Hall A-103",
+      "block": "Block A",
+      "rows_count": 5,
+      "cols_count": 5,
+      "seats_per_bench": 2,
+      "capacity": 50
+    },
+    {
+      "hall_id": 4,
+      "hall_name": "Hall A-104",
+      "block": "Block A",
+      "rows_count": 5,
+      "cols_count": 5,
+      "seats_per_bench": 2,
+      "capacity": 50
+    }
+  ],
+  "papers": {
+    "PAPER_MATH": "Engineering Mathematics",
+    "PAPER_DBMS": "Database Management Systems",
+    "PAPER_OS": "Operating Systems",
+    "PAPER_AI": "Artificial Intelligence & ML"
+  },
+  "course_mappings": {
+    "CSE301": {
+      "department": "CSE",
+      "paper_id": "PAPER_MATH"
+    },
+    "IT301": {
+      "department": "IT",
+      "paper_id": "PAPER_MATH"
+    },
+    "ECE302": {
+      "department": "ECE",
+      "paper_id": "PAPER_DBMS"
+    },
+    "EEE302": {
+      "department": "EEE",
+      "paper_id": "PAPER_DBMS"
+    },
+    "MECH303": {
+      "department": "MECH",
+      "paper_id": "PAPER_OS"
+    },
+    "AIDS303": {
+      "department": "AIDS",
+      "paper_id": "PAPER_OS"
+    },
+    "CIVIL304": {
+      "department": "CIVIL",
+      "paper_id": "PAPER_AI"
+    },
+    "CSBS304": {
+      "department": "CSBS",
+      "paper_id": "PAPER_AI"
+    }
+  },
+  "students": [
+    {
+      "register_no": "221620070001",
+      "name": "Student_2",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830002",
+      "name": "Student_3",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070003",
+      "name": "Student_4",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830004",
+      "name": "Student_5",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070005",
+      "name": "Student_6",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830006",
+      "name": "Student_7",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070007",
+      "name": "Student_8",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830008",
+      "name": "Student_9",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070009",
+      "name": "Student_10",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830010",
+      "name": "Student_11",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070011",
+      "name": "Student_12",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830012",
+      "name": "Student_13",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070013",
+      "name": "Student_14",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830014",
+      "name": "Student_15",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070015",
+      "name": "Student_16",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830016",
+      "name": "Student_17",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070017",
+      "name": "Student_18",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830018",
+      "name": "Student_19",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070019",
+      "name": "Student_20",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830020",
+      "name": "Student_21",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070021",
+      "name": "Student_22",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830022",
+      "name": "Student_23",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070023",
+      "name": "Student_24",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830024",
+      "name": "Student_25",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070025",
+      "name": "Student_26",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830026",
+      "name": "Student_27",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070027",
+      "name": "Student_28",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830028",
+      "name": "Student_29",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070029",
+      "name": "Student_30",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830030",
+      "name": "Student_31",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070031",
+      "name": "Student_32",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830032",
+      "name": "Student_33",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070033",
+      "name": "Student_34",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830034",
+      "name": "Student_35",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070035",
+      "name": "Student_36",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830036",
+      "name": "Student_37",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070037",
+      "name": "Student_38",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830038",
+      "name": "Student_39",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070039",
+      "name": "Student_40",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830040",
+      "name": "Student_41",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070041",
+      "name": "Student_42",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830042",
+      "name": "Student_43",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070043",
+      "name": "Student_44",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830044",
+      "name": "Student_45",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070045",
+      "name": "Student_46",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830046",
+      "name": "Student_47",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070047",
+      "name": "Student_48",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830048",
+      "name": "Student_49",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070049",
+      "name": "Student_50",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830050",
+      "name": "Student_51",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070051",
+      "name": "Student_52",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830052",
+      "name": "Student_53",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070053",
+      "name": "Student_54",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830054",
+      "name": "Student_55",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070055",
+      "name": "Student_56",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830056",
+      "name": "Student_57",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070057",
+      "name": "Student_58",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830058",
+      "name": "Student_59",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070059",
+      "name": "Student_60",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830060",
+      "name": "Student_61",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070061",
+      "name": "Student_62",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830062",
+      "name": "Student_63",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070063",
+      "name": "Student_64",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830064",
+      "name": "Student_65",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070065",
+      "name": "Student_66",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830066",
+      "name": "Student_67",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070067",
+      "name": "Student_68",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830068",
+      "name": "Student_69",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070069",
+      "name": "Student_70",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830070",
+      "name": "Student_71",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070071",
+      "name": "Student_72",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830072",
+      "name": "Student_73",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070073",
+      "name": "Student_74",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830074",
+      "name": "Student_75",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070075",
+      "name": "Student_76",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830076",
+      "name": "Student_77",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070077",
+      "name": "Student_78",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830078",
+      "name": "Student_79",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070079",
+      "name": "Student_80",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830080",
+      "name": "Student_81",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070081",
+      "name": "Student_82",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830082",
+      "name": "Student_83",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070083",
+      "name": "Student_84",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830084",
+      "name": "Student_85",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070085",
+      "name": "Student_86",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830086",
+      "name": "Student_87",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070087",
+      "name": "Student_88",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830088",
+      "name": "Student_89",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070089",
+      "name": "Student_90",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830090",
+      "name": "Student_91",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070091",
+      "name": "Student_92",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830092",
+      "name": "Student_93",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070093",
+      "name": "Student_94",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830094",
+      "name": "Student_95",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620070095",
+      "name": "Student_96",
+      "department": "CSE",
+      "class_name": "CSE-III-Year",
+      "course_code": "CSE301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221624830096",
+      "name": "Student_97",
+      "department": "IT",
+      "class_name": "IT-III-Year",
+      "course_code": "IT301",
+      "paper_id": "PAPER_MATH"
+    },
+    {
+      "register_no": "221620370097",
+      "name": "Student_98",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420098",
+      "name": "Student_99",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370099",
+      "name": "Student_100",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420100",
+      "name": "Student_101",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370101",
+      "name": "Student_102",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420102",
+      "name": "Student_103",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370103",
+      "name": "Student_104",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420104",
+      "name": "Student_105",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370105",
+      "name": "Student_106",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420106",
+      "name": "Student_107",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370107",
+      "name": "Student_108",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420108",
+      "name": "Student_109",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370109",
+      "name": "Student_110",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420110",
+      "name": "Student_111",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370111",
+      "name": "Student_112",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420112",
+      "name": "Student_113",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370113",
+      "name": "Student_114",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420114",
+      "name": "Student_115",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370115",
+      "name": "Student_116",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420116",
+      "name": "Student_117",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370117",
+      "name": "Student_118",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420118",
+      "name": "Student_119",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370119",
+      "name": "Student_120",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420120",
+      "name": "Student_121",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370121",
+      "name": "Student_122",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420122",
+      "name": "Student_123",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370123",
+      "name": "Student_124",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420124",
+      "name": "Student_125",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370125",
+      "name": "Student_126",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420126",
+      "name": "Student_127",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370127",
+      "name": "Student_128",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420128",
+      "name": "Student_129",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370129",
+      "name": "Student_130",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420130",
+      "name": "Student_131",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370131",
+      "name": "Student_132",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420132",
+      "name": "Student_133",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370133",
+      "name": "Student_134",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420134",
+      "name": "Student_135",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370135",
+      "name": "Student_136",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420136",
+      "name": "Student_137",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370137",
+      "name": "Student_138",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420138",
+      "name": "Student_139",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370139",
+      "name": "Student_140",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420140",
+      "name": "Student_141",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370141",
+      "name": "Student_142",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420142",
+      "name": "Student_143",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221620370143",
+      "name": "Student_144",
+      "department": "ECE",
+      "class_name": "ECE-III-Year",
+      "course_code": "ECE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221622420144",
+      "name": "Student_145",
+      "department": "EEE",
+      "class_name": "EEE-III-Year",
+      "course_code": "EEE302",
+      "paper_id": "PAPER_DBMS"
+    },
+    {
+      "register_no": "221623700145",
+      "name": "Student_146",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240146",
+      "name": "Student_147",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700147",
+      "name": "Student_148",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240148",
+      "name": "Student_149",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700149",
+      "name": "Student_150",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240150",
+      "name": "Student_151",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700151",
+      "name": "Student_152",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240152",
+      "name": "Student_153",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700153",
+      "name": "Student_154",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240154",
+      "name": "Student_155",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700155",
+      "name": "Student_156",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240156",
+      "name": "Student_157",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700157",
+      "name": "Student_158",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240158",
+      "name": "Student_159",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700159",
+      "name": "Student_160",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240160",
+      "name": "Student_161",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700161",
+      "name": "Student_162",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240162",
+      "name": "Student_163",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700163",
+      "name": "Student_164",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240164",
+      "name": "Student_165",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700165",
+      "name": "Student_166",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240166",
+      "name": "Student_167",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700167",
+      "name": "Student_168",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240168",
+      "name": "Student_169",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700169",
+      "name": "Student_170",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240170",
+      "name": "Student_171",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700171",
+      "name": "Student_172",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240172",
+      "name": "Student_173",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700173",
+      "name": "Student_174",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240174",
+      "name": "Student_175",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221623700175",
+      "name": "Student_176",
+      "department": "MECH",
+      "class_name": "MECH-III-Year",
+      "course_code": "MECH303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221620240176",
+      "name": "Student_177",
+      "department": "AIDS",
+      "class_name": "AIDS-III-Year",
+      "course_code": "AIDS303",
+      "paper_id": "PAPER_OS"
+    },
+    {
+      "register_no": "221622190177",
+      "name": "Student_178",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100178",
+      "name": "Student_179",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622190179",
+      "name": "Student_180",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100180",
+      "name": "Student_181",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622190181",
+      "name": "Student_182",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100182",
+      "name": "Student_183",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622190183",
+      "name": "Student_184",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100184",
+      "name": "Student_185",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622190185",
+      "name": "Student_186",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100186",
+      "name": "Student_187",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622190187",
+      "name": "Student_188",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100188",
+      "name": "Student_189",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622190189",
+      "name": "Student_190",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100190",
+      "name": "Student_191",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622190191",
+      "name": "Student_192",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100192",
+      "name": "Student_193",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622190193",
+      "name": "Student_194",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100194",
+      "name": "Student_195",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622190195",
+      "name": "Student_196",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100196",
+      "name": "Student_197",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622190197",
+      "name": "Student_198",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100198",
+      "name": "Student_199",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622190199",
+      "name": "Student_200",
+      "department": "CIVIL",
+      "class_name": "CIVIL-III-Year",
+      "course_code": "CIVIL304",
+      "paper_id": "PAPER_AI"
+    },
+    {
+      "register_no": "221622100200",
+      "name": "Student_201",
+      "department": "CSBS",
+      "class_name": "CSBS-III-Year",
+      "course_code": "CSBS304",
+      "paper_id": "PAPER_AI"
+    }
+  ]
+}

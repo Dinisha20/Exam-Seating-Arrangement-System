@@ -1,0 +1,7 @@
+course_code,department,paper_name,paper_id
+CSE301,CSE,Engineering Mathematics,PAPER_MATH
+IT301,IT,Engineering Mathematics,PAPER_MATH
+ECE302,ECE,Database Management Systems,PAPER_DBMS
+EEE302,EEE,Database Management Systems,PAPER_DBMS
+MECH303,MECH,Operating Systems,PAPER_OS
+AIDS303,AIDS,Operating Systems,PAPER_OS

@@ -1,0 +1,18 @@
+course_code,department,paper_name,paper_id
+CSE301,CSE,Engineering Mathematics,PAPER_MATH
+IT301,IT,Engineering Mathematics,PAPER_MATH
+ECE302,ECE,Database Management Systems,PAPER_DBMS
+EEE302,EEE,Database Management Systems,PAPER_DBMS
+MECH303,MECH,Operating Systems,PAPER_OS
+AIDS303,AIDS,Operating Systems,PAPER_OS
+CIVIL304,CIVIL,Artificial Intelligence & ML,PAPER_AI
+CSBS304,CSBS,Artificial Intelligence & ML,PAPER_AI
+IT305,IT,Computer Networks,PAPER_NETWORKS
+CSE305,CSE,Computer Networks,PAPER_NETWORKS
+EEE306,EEE,Applied Physics,PAPER_PHYSICS
+ECE306,ECE,Applied Physics,PAPER_PHYSICS
+AIDS307,AIDS,Electric Circuits & Networks,PAPER_CIRCUITS
+MECH307,MECH,Electric Circuits & Networks,PAPER_CIRCUITS
+CSBS308,CSBS,Structural Analysis,PAPER_STRUCTURES
+CSE309,CSE,Thermodynamics,PAPER_THERMO
+ECE310,ECE,Signals and Systems,PAPER_SIGNALS

@@ -1,0 +1,92 @@
+[
+  {
+    "instance_id": "INST_01_SMALL_BALANCED",
+    "description": "Small scale with 3 balanced papers",
+    "students": 60,
+    "seats": 80,
+    "halls": 2,
+    "papers": 3,
+    "utilization": "75.0%",
+    "largest_paper": "25.0%",
+    "files": {
+      "json": "benchmark_datasets\\INST_01_SMALL_BALANCED.json",
+      "excel": "benchmark_datasets\\INST_01_SMALL_BALANCED_hall_plan.xlsx",
+      "csv": "benchmark_datasets\\INST_01_SMALL_BALANCED_subjects.csv"
+    }
+  },
+  {
+    "instance_id": "INST_02_MEDIUM_ZIPFIAN",
+    "description": "Medium scale with realistic Zipfian paper distribution",
+    "students": 160,
+    "seats": 180,
+    "halls": 3,
+    "papers": 5,
+    "utilization": "88.9%",
+    "largest_paper": "38.9%",
+    "files": {
+      "json": "benchmark_datasets\\INST_02_MEDIUM_ZIPFIAN.json",
+      "excel": "benchmark_datasets\\INST_02_MEDIUM_ZIPFIAN_hall_plan.xlsx",
+      "csv": "benchmark_datasets\\INST_02_MEDIUM_ZIPFIAN_subjects.csv"
+    }
+  },
+  {
+    "instance_id": "INST_03_STRESS_DOMINANT",
+    "description": "Stress-test with 44% concentration in 1 dominant paper",
+    "students": 90,
+    "seats": 100,
+    "halls": 2,
+    "papers": 4,
+    "utilization": "90.0%",
+    "largest_paper": "39.0%",
+    "files": {
+      "json": "benchmark_datasets\\INST_03_STRESS_DOMINANT.json",
+      "excel": "benchmark_datasets\\INST_03_STRESS_DOMINANT_hall_plan.xlsx",
+      "csv": "benchmark_datasets\\INST_03_STRESS_DOMINANT_subjects.csv"
+    }
+  },
+  {
+    "instance_id": "INST_04_MULTI_DEPT_SHARED",
+    "description": "Cross-departmental paper sharing across 8 course codes",
+    "students": 200,
+    "seats": 200,
+    "halls": 4,
+    "papers": 4,
+    "utilization": "100.0%",
+    "largest_paper": "48.0%",
+    "files": {
+      "json": "benchmark_datasets\\INST_04_MULTI_DEPT_SHARED.json",
+      "excel": "benchmark_datasets\\INST_04_MULTI_DEPT_SHARED_hall_plan.xlsx",
+      "csv": "benchmark_datasets\\INST_04_MULTI_DEPT_SHARED_subjects.csv"
+    }
+  },
+  {
+    "instance_id": "INST_05_LARGE_SCALE",
+    "description": "Large scale exam session across 8 halls",
+    "students": 500,
+    "seats": 560,
+    "halls": 8,
+    "papers": 8,
+    "utilization": "89.3%",
+    "largest_paper": "32.9%",
+    "files": {
+      "json": "benchmark_datasets\\INST_05_LARGE_SCALE.json",
+      "excel": "benchmark_datasets\\INST_05_LARGE_SCALE_hall_plan.xlsx",
+      "csv": "benchmark_datasets\\INST_05_LARGE_SCALE_subjects.csv"
+    }
+  },
+  {
+    "instance_id": "INST_06_CAMPUS_WIDE",
+    "description": "Ultra-large campus-wide exam with 1,000 students",
+    "students": 1000,
+    "seats": 1200,
+    "halls": 15,
+    "papers": 10,
+    "utilization": "83.3%",
+    "largest_paper": "28.4%",
+    "files": {
+      "json": "benchmark_datasets\\INST_06_CAMPUS_WIDE.json",
+      "excel": "benchmark_datasets\\INST_06_CAMPUS_WIDE_hall_plan.xlsx",
+      "csv": "benchmark_datasets\\INST_06_CAMPUS_WIDE_subjects.csv"
+    }
+  }
+]

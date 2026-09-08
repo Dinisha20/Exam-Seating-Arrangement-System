@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Exam Seating Arrangement System</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">ES</div>
+        <div class="brand-text">
+          <div class="brand-title">Exam Seating</div>
+          <div class="brand-sub">Arrangement System</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="dashboard">
+          <span class="nav-icon">&#9679;</span> Dashboard
+        </button>
+        <button class="nav-item" data-view="papers">
+          <span class="nav-icon">&#9679;</span> Papers &amp; Mapping
+        </button>
+        <button class="nav-item" data-view="halls">
+          <span class="nav-icon">&#9679;</span> Halls &amp; Benches
+        </button>
+        <button class="nav-item" data-view="exams">
+          <span class="nav-icon">&#9679;</span> Exam Sessions
+        </button>
+        <button class="nav-item" data-view="upload">
+          <span class="nav-icon">&#9679;</span> Upload Students
+        </button>
+        <button class="nav-item" data-view="generate">
+          <span class="nav-icon">&#9679;</span> Generate Seating
+        </button>
+        <button class="nav-item" data-view="seatmap">
+          <span class="nav-icon">&#9679;</span> Seat Map
+        </button>
+        <button class="nav-item" data-view="lookup">
+          <span class="nav-icon">&#9679;</span> Student Lookup
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        Phase 1 &middot; Core engine
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title" id="viewTitle">Dashboard</div>
+        <div class="topbar-exam">
+          <label for="examSelect">Active exam session</label>
+          <select id="examSelect"></select>
+        </div>
+      </header>
+
+      <div class="content" id="content">
+        <!-- views injected here by app.js -->
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
