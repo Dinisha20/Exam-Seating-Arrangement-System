@@ -40,23 +40,37 @@ os.makedirs(EXPORT_DIR, exist_ok=True)
 # PAPERS & COURSE CODE MAPPING
 # ---------------------------------------------------------------------------
 @app.get("/api/papers")
-def list_papers(db: Session = Depends(get_db)):
-    papers = db.query(models.Paper).order_by(models.Paper.paper_name).all()
-    mappings = db.query(models.CourseCodeMapping).order_by(models.CourseCodeMapping.course_code).all()
+def list_papers(exam_id: int = None, db: Session = Depends(get_db)):
+    all_papers_list = db.query(models.Paper).order_by(models.Paper.paper_name).all()
+    all_papers_data = [{"paper_id": p.paper_id, "paper_name": p.paper_name} for p in all_papers_list]
+
+    if exam_id is not None:
+        # Session-specific: only papers/mappings linked to this exam session
+        sp_ids = {r.paper_id for r in db.query(models.SessionPaper).filter_by(exam_id=exam_id).all()}
+        sm_codes = {r.course_code for r in db.query(models.SessionMapping).filter_by(exam_id=exam_id).all()}
+        papers = db.query(models.Paper).filter(models.Paper.paper_id.in_(sp_ids)).order_by(models.Paper.paper_name).all() if sp_ids else []
+        mappings = db.query(models.CourseCodeMapping).filter(models.CourseCodeMapping.course_code.in_(sm_codes)).order_by(models.CourseCodeMapping.course_code).all() if sm_codes else []
+    else:
+        papers = all_papers_list
+        mappings = db.query(models.CourseCodeMapping).order_by(models.CourseCodeMapping.course_code).all()
+
     return {
         "papers": [{"paper_id": p.paper_id, "paper_name": p.paper_name} for p in papers],
         "mappings": [
             {"course_code": m.course_code, "department": m.department, "paper_id": m.paper_id}
             for m in mappings
         ],
+        "all_papers": all_papers_data,
     }
 
 
+
 @app.post("/api/papers/bulk-upload")
-def bulk_upload_papers(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    """Accept a CSV with columns: course_code, department, paper_name.
+def bulk_upload_papers(file: UploadFile = File(...), exam_id: int = Form(None), db: Session = Depends(get_db)):
+    """Accept a CSV or Excel (.xlsx/.xls) with columns: course_code, department, paper_name.
     paper_id is auto-generated from paper_name if not supplied.
-    Rows sharing the same paper_name are mapped to the same paper."""
+    Rows sharing the same paper_name are mapped to the same paper.
+    If exam_id is provided, created/updated papers and mappings are linked to that session."""
     import csv, io, re
 
     try:
@@ -64,65 +78,133 @@ def bulk_upload_papers(file: UploadFile = File(...), db: Session = Depends(get_d
     except Exception as e:
         raise HTTPException(400, f"Could not read uploaded file: {e}")
 
-    # Try several encodings
-    content = None
-    for enc in ("utf-8-sig", "utf-8", "cp1252", "iso-8859-1", "latin-1"):
+    filename = (file.filename or "").lower()
+    is_excel = filename.endswith(".xlsx") or filename.endswith(".xls")
+
+    rows_data = []  # list of dicts with keys: course_code, department, paper_name, paper_id
+
+    if is_excel:
+        # Parse Excel using openpyxl
+        import openpyxl
         try:
-            content = raw_bytes.decode(enc)
-            break
-        except UnicodeDecodeError:
-            continue
+            wb = openpyxl.load_workbook(io.BytesIO(raw_bytes), data_only=True, read_only=True)
+            ws = wb.active or wb.worksheets[0]
+            all_rows = list(ws.iter_rows(values_only=True))
+            wb.close()
+        except Exception as e:
+            raise HTTPException(400, f"Could not read Excel file: {e}")
 
-    if content is None:
-        content = raw_bytes.decode("utf-8-sig", errors="replace")
+        if not all_rows:
+            raise HTTPException(400, "Empty Excel file")
 
-    # Detect delimiter
-    sample = content[:4096]
-    delimiter = ","
-    try:
-        dialect = csv.Sniffer().sniff(sample, delimiters=[",", ";", "\t", "|"])
-        delimiter = dialect.delimiter
-    except Exception:
-        pass
+        header_row = [str(c).strip() if c is not None else "" for c in all_rows[0]]
+        data_rows = all_rows[1:]
 
-    reader = csv.reader(io.StringIO(content), delimiter=delimiter)
-    try:
-        header_row = next(reader)
-    except StopIteration:
-        raise HTTPException(400, "Empty CSV file")
+        # Map column synonyms (same logic as CSV)
+        synonym_map = {
+            "course_code": "course_code", "coursecode": "course_code", "course code": "course_code", "course": "course_code", "code": "course_code",
+            "paper_name": "paper_name", "papername": "paper_name", "paper name": "paper_name", "paper": "paper_name", "subject": "paper_name", "subject_name": "paper_name", "subject name": "paper_name",
+            "department": "department", "dept": "department", "dept_name": "department", "dept name": "department", "branch": "department",
+            "paper_id": "paper_id", "paperid": "paper_id", "paper id": "paper_id", "subject_id": "paper_id", "subject id": "paper_id",
+        }
 
-    # Map column synonyms
-    synonym_map = {
-        "course_code": "course_code", "coursecode": "course_code", "course code": "course_code", "course": "course_code", "code": "course_code",
-        "paper_name": "paper_name", "papername": "paper_name", "paper name": "paper_name", "paper": "paper_name", "subject": "paper_name", "subject_name": "paper_name", "subject name": "paper_name",
-        "department": "department", "dept": "department", "dept_name": "department", "dept name": "department", "branch": "department",
-        "paper_id": "paper_id", "paperid": "paper_id", "paper id": "paper_id", "subject_id": "paper_id", "subject id": "paper_id",
-    }
+        col_map = {}
+        for idx, col in enumerate(header_row):
+            if col:
+                normalized = col.strip().lower().replace("-", "_").replace(" ", "_")
+                matched_key = synonym_map.get(col.strip().lower()) or synonym_map.get(normalized)
+                if matched_key:
+                    col_map[idx] = matched_key
 
-    col_map = {}
-    for idx, col in enumerate(header_row):
-        if col:
-            normalized = col.strip().lower().replace("-", "_").replace(" ", "_")
-            matched_key = synonym_map.get(col.strip().lower()) or synonym_map.get(normalized)
-            if matched_key:
-                col_map[idx] = matched_key
+        inv_map = set(col_map.values())
+        if "course_code" not in inv_map or "paper_name" not in inv_map:
+            missing = []
+            if "course_code" not in inv_map:
+                missing.append("course_code")
+            if "paper_name" not in inv_map:
+                missing.append("paper_name")
+            raise HTTPException(400, f"File is missing required columns: {', '.join(missing)}")
 
-    inv_map = set(col_map.values())
-    if "course_code" not in inv_map or "paper_name" not in inv_map:
-        missing = []
-        if "course_code" not in inv_map:
-            missing.append("course_code")
-        if "paper_name" not in inv_map:
-            missing.append("paper_name")
-        raise HTTPException(400, f"CSV is missing required columns: {', '.join(missing)}")
+        for row in data_rows:
+            row_dict = {}
+            for idx, cell in enumerate(row):
+                if idx in col_map and cell is not None:
+                    row_dict[col_map[idx]] = str(cell).strip()
+            if row_dict.get("course_code") and row_dict.get("paper_name"):
+                rows_data.append(row_dict)
 
+    else:
+        # CSV parsing (existing logic)
+        content = None
+        for enc in ("utf-8-sig", "utf-8", "cp1252", "iso-8859-1", "latin-1"):
+            try:
+                content = raw_bytes.decode(enc)
+                break
+            except UnicodeDecodeError:
+                continue
+
+        if content is None:
+            content = raw_bytes.decode("utf-8-sig", errors="replace")
+
+        # Detect delimiter
+        sample = content[:4096]
+        delimiter = ","
+        try:
+            dialect = csv.Sniffer().sniff(sample, delimiters=[",", ";", "\t", "|"])
+            delimiter = dialect.delimiter
+        except Exception:
+            pass
+
+        reader = csv.reader(io.StringIO(content), delimiter=delimiter)
+        try:
+            header_row = next(reader)
+        except StopIteration:
+            raise HTTPException(400, "Empty CSV file")
+
+        # Map column synonyms
+        synonym_map = {
+            "course_code": "course_code", "coursecode": "course_code", "course code": "course_code", "course": "course_code", "code": "course_code",
+            "paper_name": "paper_name", "papername": "paper_name", "paper name": "paper_name", "paper": "paper_name", "subject": "paper_name", "subject_name": "paper_name", "subject name": "paper_name",
+            "department": "department", "dept": "department", "dept_name": "department", "dept name": "department", "branch": "department",
+            "paper_id": "paper_id", "paperid": "paper_id", "paper id": "paper_id", "subject_id": "paper_id", "subject id": "paper_id",
+        }
+
+        col_map = {}
+        for idx, col in enumerate(header_row):
+            if col:
+                normalized = col.strip().lower().replace("-", "_").replace(" ", "_")
+                matched_key = synonym_map.get(col.strip().lower()) or synonym_map.get(normalized)
+                if matched_key:
+                    col_map[idx] = matched_key
+
+        inv_map = set(col_map.values())
+        if "course_code" not in inv_map or "paper_name" not in inv_map:
+            missing = []
+            if "course_code" not in inv_map:
+                missing.append("course_code")
+            if "paper_name" not in inv_map:
+                missing.append("paper_name")
+            raise HTTPException(400, f"CSV is missing required columns: {', '.join(missing)}")
+
+        for i, row in enumerate(reader, start=2):
+            if not row or not any(cell.strip() for cell in row):
+                continue
+            row_dict = {}
+            for idx, cell in enumerate(row):
+                if idx in col_map:
+                    row_dict[col_map[idx]] = cell.strip()
+            if row_dict.get("course_code") and row_dict.get("paper_name"):
+                rows_data.append(row_dict)
+
+    # --- Common processing for both CSV and Excel ---
     def make_paper_id(name: str) -> str:
-        slug = re.sub(r"[^a-zA-Z0-9]+", "_", name.strip().upper()).strip("_")
+        import re as _re
+        slug = _re.sub(r"[^a-zA-Z0-9]+", "_", name.strip().upper()).strip("_")
         if not slug:
             slug = "DEFAULT"
         return f"PAPER_{slug[:40]}"
 
-    # Load existing records into in-memory caches to prevent duplicate PK issues when autoflush is disabled
+    # Load existing records into in-memory caches
     existing_papers = {p.paper_id: p for p in db.query(models.Paper).all()}
     existing_mappings = {m.course_code: m for m in db.query(models.CourseCodeMapping).all()}
     name_to_paper_id = {p.paper_name.strip().lower(): p.paper_id for p in existing_papers.values()}
@@ -130,16 +212,10 @@ def bulk_upload_papers(file: UploadFile = File(...), db: Session = Depends(get_d
     papers_created, papers_updated, mappings_created, mappings_updated, errors = 0, 0, 0, 0, []
     new_paper_ids_in_batch = set()
     new_mappings_in_batch = set()
+    linked_paper_ids = set()
+    linked_course_codes = set()
 
-    for i, row in enumerate(reader, start=2):
-        if not row or not any(cell.strip() for cell in row):
-            continue
-
-        row_dict = {}
-        for idx, cell in enumerate(row):
-            if idx in col_map:
-                row_dict[col_map[idx]] = cell.strip()
-
+    for i, row_dict in enumerate(rows_data, start=2):
         course_code = row_dict.get("course_code", "").strip()
         paper_name = row_dict.get("paper_name", "").strip()
         department = row_dict.get("department", "").strip()
@@ -186,6 +262,26 @@ def bulk_upload_papers(file: UploadFile = File(...), db: Session = Depends(get_d
             new_mappings_in_batch.add(course_code)
             mappings_created += 1
 
+        linked_paper_ids.add(paper_id)
+        linked_course_codes.add(course_code)
+
+    try:
+        db.flush()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(400, f"Database error while saving papers: {e}")
+
+    # Link to session if exam_id provided
+    if exam_id is not None:
+        existing_sp = {r.paper_id for r in db.query(models.SessionPaper).filter_by(exam_id=exam_id).all()}
+        existing_sm = {r.course_code for r in db.query(models.SessionMapping).filter_by(exam_id=exam_id).all()}
+        for pid in linked_paper_ids:
+            if pid not in existing_sp:
+                db.add(models.SessionPaper(exam_id=exam_id, paper_id=pid))
+        for cc in linked_course_codes:
+            if cc not in existing_sm:
+                db.add(models.SessionMapping(exam_id=exam_id, course_code=cc))
+
     try:
         db.commit()
     except Exception as e:
@@ -203,19 +299,25 @@ def bulk_upload_papers(file: UploadFile = File(...), db: Session = Depends(get_d
 
 
 @app.post("/api/papers")
-def create_paper(payload: schemas.PaperCreate, db: Session = Depends(get_db)):
+def create_paper(payload: schemas.PaperCreate, exam_id: int = None, db: Session = Depends(get_db)):
     existing = db.query(models.Paper).filter_by(paper_id=payload.paper_id).first()
     if existing:
         existing.paper_name = payload.paper_name
     else:
         db.add(models.Paper(paper_id=payload.paper_id, paper_name=payload.paper_name))
+    db.flush()
+    # Link to session if exam_id provided
+    if exam_id is not None:
+        sp = db.query(models.SessionPaper).filter_by(exam_id=exam_id, paper_id=payload.paper_id).first()
+        if not sp:
+            db.add(models.SessionPaper(exam_id=exam_id, paper_id=payload.paper_id))
     db.commit()
     return {"ok": True}
 
 
 
 @app.post("/api/course-mapping")
-def create_mapping(payload: schemas.CourseMappingCreate, db: Session = Depends(get_db)):
+def create_mapping(payload: schemas.CourseMappingCreate, exam_id: int = None, db: Session = Depends(get_db)):
     paper = db.query(models.Paper).filter_by(paper_id=payload.paper_id).first()
     if not paper:
         raise HTTPException(400, f'Unknown paper_id "{payload.paper_id}" — create the paper first')
@@ -227,22 +329,116 @@ def create_mapping(payload: schemas.CourseMappingCreate, db: Session = Depends(g
         db.add(models.CourseCodeMapping(
             course_code=payload.course_code, department=payload.department or "", paper_id=payload.paper_id,
         ))
+    db.flush()
+    # Link to session if exam_id provided — also link the paper
+    if exam_id is not None:
+        sm = db.query(models.SessionMapping).filter_by(exam_id=exam_id, course_code=payload.course_code).first()
+        if not sm:
+            db.add(models.SessionMapping(exam_id=exam_id, course_code=payload.course_code))
+        sp = db.query(models.SessionPaper).filter_by(exam_id=exam_id, paper_id=payload.paper_id).first()
+        if not sp:
+            db.add(models.SessionPaper(exam_id=exam_id, paper_id=payload.paper_id))
     db.commit()
     return {"ok": True}
 
 
 @app.delete("/api/course-mapping/{code}")
-def delete_mapping(code: str, db: Session = Depends(get_db)):
-    student_count = db.query(models.Student).filter_by(course_code=code).count()
-    if student_count:
-        raise HTTPException(
-            409,
-            f'Cannot remove mapping "{code}" — {student_count} imported student(s) are still using this course code. '
-            "Delete the exam registrations that use this code first.",
-        )
+def delete_mapping(code: str, force: bool = False, exam_id: int = None, db: Session = Depends(get_db)):
+    if exam_id is not None:
+        # Session-scoped removal: unregister students in this session with this course code
+        student_ids = [s.student_id for s in db.query(models.Student).filter_by(course_code=code).all()]
+        removed_count = 0
+        if student_ids:
+            regs = db.query(models.ExamRegistration).filter(
+                models.ExamRegistration.exam_id == exam_id,
+                models.ExamRegistration.student_id.in_(student_ids),
+            ).all()
+            reg_ids = [r.registration_id for r in regs]
+            if reg_ids:
+                db.query(models.Allocation).filter(
+                    models.Allocation.registration_id.in_(reg_ids)
+                ).delete(synchronize_session=False)
+                removed_count = db.query(models.ExamRegistration).filter(
+                    models.ExamRegistration.registration_id.in_(reg_ids)
+                ).delete(synchronize_session=False)
+
+        # Remove from SessionMapping
+        db.query(models.SessionMapping).filter_by(exam_id=exam_id, course_code=code).delete()
+
+        # If no other mappings in this session for the same paper, unlink SessionPaper
+        mapping = db.query(models.CourseCodeMapping).filter_by(course_code=code).first()
+        if mapping:
+            other_sm = db.query(models.SessionMapping).filter_by(exam_id=exam_id).join(
+                models.CourseCodeMapping, models.CourseCodeMapping.course_code == models.SessionMapping.course_code,
+            ).filter(models.CourseCodeMapping.paper_id == mapping.paper_id).count()
+            if other_sm == 0:
+                db.query(models.SessionPaper).filter_by(exam_id=exam_id, paper_id=mapping.paper_id).delete()
+
+        db.commit()
+        return {"ok": True, "removed_registrations": removed_count}
+
+    # Global removal: cascade delete Allocations → ExamRegistrations → Students → SessionMapping → Mapping
+    student_ids = [s.student_id for s in db.query(models.Student).filter_by(course_code=code).all()]
+    if student_ids:
+        reg_ids = [r.registration_id for r in db.query(models.ExamRegistration).filter(
+            models.ExamRegistration.student_id.in_(student_ids),
+        ).all()]
+        if reg_ids:
+            db.query(models.Allocation).filter(
+                models.Allocation.registration_id.in_(reg_ids)
+            ).delete(synchronize_session=False)
+        db.query(models.ExamRegistration).filter(
+            models.ExamRegistration.student_id.in_(student_ids),
+        ).delete(synchronize_session=False)
+        db.query(models.Student).filter(
+            models.Student.student_id.in_(student_ids),
+        ).delete(synchronize_session=False)
+
+    db.query(models.SessionMapping).filter_by(course_code=code).delete()
     db.query(models.CourseCodeMapping).filter_by(course_code=code).delete()
     db.commit()
+    return {"ok": True, "force_removed": len(student_ids)}
+
+
+@app.delete("/api/papers/{paper_id}")
+def delete_paper(paper_id: str, exam_id: int = None, db: Session = Depends(get_db)):
+    if exam_id is not None:
+        mappings = db.query(models.CourseCodeMapping).filter_by(paper_id=paper_id).all()
+        for m in mappings:
+            student_ids = [s.student_id for s in db.query(models.Student).filter_by(course_code=m.course_code).all()]
+            if student_ids:
+                regs = db.query(models.ExamRegistration).filter(
+                    models.ExamRegistration.exam_id == exam_id,
+                    models.ExamRegistration.student_id.in_(student_ids),
+                ).all()
+                reg_ids = [r.registration_id for r in regs]
+                if reg_ids:
+                    db.query(models.Allocation).filter(models.Allocation.registration_id.in_(reg_ids)).delete(synchronize_session=False)
+                    db.query(models.ExamRegistration).filter(models.ExamRegistration.registration_id.in_(reg_ids)).delete(synchronize_session=False)
+            db.query(models.SessionMapping).filter_by(exam_id=exam_id, course_code=m.course_code).delete()
+
+        db.query(models.SessionPaper).filter_by(exam_id=exam_id, paper_id=paper_id).delete()
+        db.commit()
+        return {"ok": True}
+
+    # Global delete paper
+    mappings = db.query(models.CourseCodeMapping).filter_by(paper_id=paper_id).all()
+    for m in mappings:
+        student_ids = [s.student_id for s in db.query(models.Student).filter_by(course_code=m.course_code).all()]
+        if student_ids:
+            reg_ids = [r.registration_id for r in db.query(models.ExamRegistration).filter(models.ExamRegistration.student_id.in_(student_ids)).all()]
+            if reg_ids:
+                db.query(models.Allocation).filter(models.Allocation.registration_id.in_(reg_ids)).delete(synchronize_session=False)
+                db.query(models.ExamRegistration).filter(models.ExamRegistration.registration_id.in_(reg_ids)).delete(synchronize_session=False)
+            db.query(models.Student).filter(models.Student.student_id.in_(student_ids)).delete(synchronize_session=False)
+        db.query(models.SessionMapping).filter_by(course_code=m.course_code).delete()
+        db.query(models.CourseCodeMapping).filter_by(course_code=m.course_code).delete()
+
+    db.query(models.SessionPaper).filter_by(paper_id=paper_id).delete()
+    db.query(models.Paper).filter_by(paper_id=paper_id).delete()
+    db.commit()
     return {"ok": True}
+
 
 
 # ---------------------------------------------------------------------------
@@ -397,6 +593,9 @@ def delete_exam(exam_id: int, db: Session = Depends(get_db)):
     # Manually cascade — no DB-level ON DELETE CASCADE is defined on these FKs.
     db.query(models.Allocation).filter_by(exam_id=exam_id).delete()
     db.query(models.ExamRegistration).filter_by(exam_id=exam_id).delete()
+    # Remove session-specific subject/mapping links
+    db.query(models.SessionPaper).filter_by(exam_id=exam_id).delete()
+    db.query(models.SessionMapping).filter_by(exam_id=exam_id).delete()
     db.query(models.ExamSession).filter_by(exam_id=exam_id).delete()
     db.commit()
     return {"ok": True}
@@ -466,6 +665,15 @@ def upload_students(
             )
             db.add(student)
             db.flush()
+        else:
+            student.course_code = s.course_code
+            if s.name:
+                student.name = s.name
+            if s.year:
+                student.year = s.year
+            if s.class_name:
+                student.class_name = s.class_name
+
         existing_reg = db.query(models.ExamRegistration).filter_by(
             exam_id=exam_id, student_id=student.student_id
         ).first()
@@ -473,12 +681,124 @@ def upload_students(
             db.add(models.ExamRegistration(exam_id=exam_id, student_id=student.student_id, status="Registered"))
             imported += 1
 
+        # Automatically link this course code and paper to this exam session
+        sm = db.query(models.SessionMapping).filter_by(exam_id=exam_id, course_code=s.course_code).first()
+        if not sm:
+            db.add(models.SessionMapping(exam_id=exam_id, course_code=s.course_code))
+        mapping = db.query(models.CourseCodeMapping).filter_by(course_code=s.course_code).first()
+        if mapping:
+            sp = db.query(models.SessionPaper).filter_by(exam_id=exam_id, paper_id=mapping.paper_id).first()
+            if not sp:
+                db.add(models.SessionPaper(exam_id=exam_id, paper_id=mapping.paper_id))
+
     db.commit()
 
     return {
         "ok": True, "imported": imported, "total_parsed": len(parsed.students),
         "parse_errors": parsed.errors, "unmapped_course_codes": list(unmapped),
     }
+
+
+@app.get("/api/upload/{exam_id}/students")
+def list_session_students(exam_id: int, db: Session = Depends(get_db)):
+    """Return all students registered for this specific exam session."""
+    regs = (
+        db.query(models.ExamRegistration, models.Student, models.CourseCodeMapping, models.Paper)
+        .join(models.Student, models.Student.student_id == models.ExamRegistration.student_id)
+        .outerjoin(models.CourseCodeMapping, models.CourseCodeMapping.course_code == models.Student.course_code)
+        .outerjoin(models.Paper, models.Paper.paper_id == models.CourseCodeMapping.paper_id)
+        .filter(models.ExamRegistration.exam_id == exam_id)
+        .order_by(models.Student.register_no)
+        .all()
+    )
+    return {
+        "exam_id": exam_id,
+        "total": len(regs),
+        "students": [
+            {
+                "registration_id": r.registration_id,
+                "student_id": s.student_id,
+                "register_no": s.register_no,
+                "name": s.name or "—",
+                "year": s.year or "—",
+                "class_name": s.class_name or "—",
+                "course_code": s.course_code,
+                "department": m.department if m else "—",
+                "paper_id": p.paper_id if p else "",
+                "paper_name": p.paper_name if p else s.course_code,
+                "status": r.status,
+            }
+            for r, s, m, p in regs
+        ],
+    }
+
+
+@app.delete("/api/upload/{exam_id}/students/{student_id}")
+def remove_single_session_student(exam_id: int, student_id: int, db: Session = Depends(get_db)):
+    """Remove an individual student's registration from this session."""
+    reg = db.query(models.ExamRegistration).filter_by(exam_id=exam_id, student_id=student_id).first()
+    if not reg:
+        raise HTTPException(404, "Student registration not found in this exam session")
+
+    db.query(models.Allocation).filter_by(registration_id=reg.registration_id).delete(synchronize_session=False)
+    db.query(models.ExamRegistration).filter_by(registration_id=reg.registration_id).delete(synchronize_session=False)
+
+    # Clean up student record if no longer registered in any exam session
+    other_regs = db.query(models.ExamRegistration).filter_by(student_id=student_id).count()
+    if other_regs == 0:
+        db.query(models.Student).filter_by(student_id=student_id).delete(synchronize_session=False)
+
+    db.commit()
+    return {"ok": True}
+
+
+@app.delete("/api/upload/{exam_id}/students")
+def remove_uploaded_students(exam_id: int, db: Session = Depends(get_db)):
+    """Remove all student registrations (and their allocations) for this exam session."""
+    exam = db.query(models.ExamSession).filter_by(exam_id=exam_id).first()
+    if not exam:
+        raise HTTPException(404, "Unknown exam_id")
+
+    reg_rows = db.query(models.ExamRegistration).filter_by(exam_id=exam_id).all()
+    reg_ids = [r.registration_id for r in reg_rows]
+    student_ids = [r.student_id for r in reg_rows]
+
+    if reg_ids:
+        db.query(models.Allocation).filter(
+            models.Allocation.registration_id.in_(reg_ids)
+        ).delete(synchronize_session=False)
+
+    deleted = db.query(models.ExamRegistration).filter_by(exam_id=exam_id).delete(
+        synchronize_session=False
+    )
+
+    # Clean up students who have no registrations anywhere
+    if student_ids:
+        still_registered = {
+            r.student_id
+            for r in db.query(models.ExamRegistration).filter(
+                models.ExamRegistration.student_id.in_(student_ids)
+            ).all()
+        }
+        orphaned = [sid for sid in student_ids if sid not in still_registered]
+        if orphaned:
+            db.query(models.Student).filter(
+                models.Student.student_id.in_(orphaned)
+            ).delete(synchronize_session=False)
+
+    db.commit()
+    return {"ok": True, "removed": deleted}
+
+
+@app.get("/api/upload/{exam_id}/stats")
+def get_upload_stats(exam_id: int, db: Session = Depends(get_db)):
+    """Return registration count for a session."""
+    exam = db.query(models.ExamSession).filter_by(exam_id=exam_id).first()
+    if not exam:
+        return {"exam_id": exam_id, "student_count": 0}
+    count = db.query(models.ExamRegistration).filter_by(exam_id=exam_id).count()
+    return {"exam_id": exam_id, "student_count": count}
+
 
 
 # ---------------------------------------------------------------------------

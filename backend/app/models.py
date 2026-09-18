@@ -108,3 +108,19 @@ class Allocation(Base):
     registration_id = Column(Integer, ForeignKey("exam_registration.registration_id"), nullable=False)
     seat_id = Column(Integer, ForeignKey("seat.seat_id"), nullable=False)
     status = Column(String, default="Allocated")
+
+
+class SessionPaper(Base):
+    """Junction table linking papers to specific exam sessions."""
+    __tablename__ = "session_paper"
+
+    exam_id = Column(Integer, ForeignKey("exam_session.exam_id"), primary_key=True)
+    paper_id = Column(String, ForeignKey("paper.paper_id"), primary_key=True)
+
+
+class SessionMapping(Base):
+    """Junction table linking course-code mappings to specific exam sessions."""
+    __tablename__ = "session_mapping"
+
+    exam_id = Column(Integer, ForeignKey("exam_session.exam_id"), primary_key=True)
+    course_code = Column(String, ForeignKey("course_code_mapping.course_code"), primary_key=True)

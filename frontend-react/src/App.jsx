@@ -69,7 +69,7 @@ function AppInner() {
 
   const bump = () => setRefreshTick((t) => t + 1);
 
-  const pageProps = { currentExamId, exams, onDataChanged: bump, setView, user };
+  const pageProps = { currentExamId, setCurrentExamId, exams, onDataChanged: bump, setView, user };
 
   if (!user) {
     return <Login onLogin={handleLogin} />;
