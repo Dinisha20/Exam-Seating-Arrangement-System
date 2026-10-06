@@ -1,12 +1,14 @@
 """main.py — Exam Seating Arrangement System (Phase 1), FastAPI backend."""
+import io
 import os
 import shutil
 import tempfile
+from datetime import datetime, time
 from typing import List
 
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -540,10 +542,77 @@ def delete_hall(hall_id: int, db: Session = Depends(get_db)):
 
 
 # ---------------------------------------------------------------------------
-# EXAM SESSIONS
+# EXAM SESSIONS & EXPIRATION CLEANUP
 # ---------------------------------------------------------------------------
+def _parse_time_str(t_str: str):
+    if not t_str:
+        return None
+    t_str = t_str.strip().upper()
+    for fmt in ("%I:%M %p", "%I:%M%p", "%H:%M"):
+        try:
+            return datetime.strptime(t_str, fmt).time()
+        except ValueError:
+            continue
+    return None
+
+
+def is_exam_session_expired(exam_date_str: str, exam_time_str: str = "", session_type: str = "FN") -> bool:
+    if not exam_date_str or not exam_date_str.strip():
+        return False
+    try:
+        exam_date = datetime.strptime(exam_date_str.strip(), "%Y-%m-%d").date()
+    except ValueError:
+        return False
+
+    now = datetime.now()
+    today = now.date()
+
+    if exam_date < today:
+        return True
+    if exam_date > today:
+        return False
+
+    # Date is today: check if end time has passed
+    end_time = None
+    if exam_time_str and "-" in exam_time_str:
+        try:
+            parts = exam_time_str.split("-")
+            end_time = _parse_time_str(parts[1])
+        except Exception:
+            end_time = None
+
+    if not end_time:
+        if session_type == "AN":
+            end_time = time(17, 0)
+        else:
+            end_time = time(12, 30)
+
+    return now.time() > end_time
+
+
+def remove_exam_session(db: Session, exam_id: int):
+    # Manually cascade — no DB-level ON DELETE CASCADE is defined on these FKs.
+    db.query(models.Allocation).filter_by(exam_id=exam_id).delete()
+    db.query(models.ExamRegistration).filter_by(exam_id=exam_id).delete()
+    db.query(models.SessionPaper).filter_by(exam_id=exam_id).delete()
+    db.query(models.SessionMapping).filter_by(exam_id=exam_id).delete()
+    db.query(models.ExamSession).filter_by(exam_id=exam_id).delete()
+    db.commit()
+
+
+def cleanup_expired_sessions(db: Session) -> int:
+    exams = db.query(models.ExamSession).all()
+    removed_count = 0
+    for e in exams:
+        if is_exam_session_expired(e.exam_date, e.exam_time, e.session_type):
+            remove_exam_session(db, e.exam_id)
+            removed_count += 1
+    return removed_count
+
+
 @app.get("/api/exams")
 def list_exams(db: Session = Depends(get_db)):
+    cleanup_expired_sessions(db)
     exams = db.query(models.ExamSession).order_by(models.ExamSession.exam_id.desc()).all()
     return [
         {
@@ -554,8 +623,20 @@ def list_exams(db: Session = Depends(get_db)):
     ]
 
 
+@app.post("/api/exams-cleanup-expired")
+@app.get("/api/exams-cleanup-expired")
+@app.delete("/api/exams-cleanup-expired")
+@app.post("/api/exams/cleanup-expired")
+def cleanup_expired_route(db: Session = Depends(get_db)):
+    removed = cleanup_expired_sessions(db)
+    return {"ok": True, "removed": removed}
+
+
 @app.post("/api/exams")
 def create_exam(payload: schemas.ExamCreate, db: Session = Depends(get_db)):
+    if payload.exam_date and is_exam_session_expired(payload.exam_date, payload.exam_time or "", payload.session_type or "FN"):
+        raise HTTPException(400, "Cannot create an exam session with an expired date or time.")
+
     exam = models.ExamSession(
         exam_name=payload.exam_name, exam_date=payload.exam_date or "",
         session_type=payload.session_type or "FN", exam_time=payload.exam_time or "",
@@ -570,6 +651,13 @@ def update_exam(exam_id: int, payload: schemas.ExamUpdate, db: Session = Depends
     exam = db.query(models.ExamSession).filter_by(exam_id=exam_id).first()
     if not exam:
         raise HTTPException(400, "Unknown exam_id")
+
+    target_date = payload.exam_date if payload.exam_date is not None else exam.exam_date
+    target_time = payload.exam_time if payload.exam_time is not None else exam.exam_time
+    target_session = payload.session_type if payload.session_type is not None else exam.session_type
+
+    if target_date and is_exam_session_expired(target_date, target_time, target_session):
+        raise HTTPException(400, "Cannot update an exam session to an expired date or time.")
 
     if payload.exam_name is not None:
         exam.exam_name = payload.exam_name
@@ -590,20 +678,110 @@ def delete_exam(exam_id: int, db: Session = Depends(get_db)):
     if not exam:
         raise HTTPException(400, "Unknown exam_id")
 
-    # Manually cascade — no DB-level ON DELETE CASCADE is defined on these FKs.
-    db.query(models.Allocation).filter_by(exam_id=exam_id).delete()
-    db.query(models.ExamRegistration).filter_by(exam_id=exam_id).delete()
-    # Remove session-specific subject/mapping links
-    db.query(models.SessionPaper).filter_by(exam_id=exam_id).delete()
-    db.query(models.SessionMapping).filter_by(exam_id=exam_id).delete()
-    db.query(models.ExamSession).filter_by(exam_id=exam_id).delete()
-    db.commit()
+    remove_exam_session(db, exam_id)
     return {"ok": True}
 
 
 # ---------------------------------------------------------------------------
 # STUDENT IMPORT
 # ---------------------------------------------------------------------------
+
+@app.get("/api/upload/template")
+@app.head("/api/upload/template")
+def download_student_upload_template():
+    """Return a downloadable Excel (.xlsx) template for the COE hall plan upload.
+    The template shows the expected column structure with sample data rows.
+    IMPORTANT: This literal route must appear BEFORE any /api/upload/{exam_id}
+    parameterised routes so FastAPI doesn't swallow 'template' as an exam_id."""
+    out_path = os.path.join(EXPORT_DIR, "student_upload_template.xlsx")
+    if not os.path.exists(out_path):
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        import openpyxl
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Sheet1"
+
+        header_fill = PatternFill(start_color="1E3A5F", end_color="1E3A5F", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF", size=11)
+        header_align = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        thin = Side(border_style="thin", color="AAAAAA")
+        border = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+        ws.merge_cells("A1:H1")
+        ws["A1"] = "HALL PLAN - STUDENT UPLOAD TEMPLATE"
+        ws["A1"].font = Font(bold=True, size=13, color="1E3A5F")
+        ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
+        ws.row_dimensions[1].height = 28
+
+        ws.merge_cells("A2:H2")
+        ws["A2"] = "(Fill in actual student data from Row 5 onwards. Do not change column headers in Row 4.)"
+        ws["A2"].font = Font(italic=True, color="888888", size=9)
+        ws["A2"].alignment = Alignment(horizontal="center")
+        ws.row_dimensions[2].height = 18
+        ws.row_dimensions[3].height = 8
+
+        headers = ["S.No", "Year", "Class", "Course Code", "Register Nos.", "Count", "Total Count", "Lab Name"]
+        col_widths = [6, 8, 14, 14, 36, 8, 12, 18]
+        for col_idx, (h, w) in enumerate(zip(headers, col_widths), 1):
+            cell = ws.cell(row=4, column=col_idx, value=h)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_align
+            cell.border = border
+            ws.column_dimensions[chr(64 + col_idx)].width = w
+        ws.row_dimensions[4].height = 30
+
+        sample_rows = [
+            [1, "III", "CSE-A", "CS301", "2122411101001 - 030", 30, 30, "Hall 1"],
+            [2, "III", "CSE-B", "CS301", "2122411101031 - 060", 30, 60, "Hall 1"],
+            [3, "III", "IT-A",  "IT305", "2122421101001 - 025", 25, 25, "Hall 2"],
+            [4, "II",  "AIDS-A","MA201", "2222431101001 - 040", 40, 40, "Hall 2"],
+            [5, "III", "ECE-A", "EC301", "2122451101001 - 035, 038 - 040", 38, 38, "Hall 3"],
+        ]
+        sample_fill = PatternFill(start_color="F0F4FF", end_color="F0F4FF", fill_type="solid")
+        for r_idx, row_data in enumerate(sample_rows, 5):
+            for c_idx, val in enumerate(row_data, 1):
+                cell = ws.cell(row=r_idx, column=c_idx, value=val)
+                cell.fill = sample_fill
+                cell.border = border
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+                cell.font = Font(size=10)
+
+        ws2 = wb.create_sheet("Instructions")
+        notes = [
+            ("UPLOAD TEMPLATE INSTRUCTIONS", True),
+            ("", False),
+            ("Required Columns:", True),
+            ("  - Year: Student year (e.g. I, II, III, IV)", False),
+            ("  - Class: Class/section name (e.g. CSE-A, IT-B)", False),
+            ("  - Course Code: The course code as mapped in the Papers & Mapping tab (e.g. CS301, IT305)", False),
+            ("  - Register Nos.: Register number ranges (e.g. '2122411101001 - 030' or single numbers)", False),
+            ("", False),
+            ("Register Number Format:", True),
+            ("  Ranges: '2122411101001 - 030' expands to 001 through 030 with the given prefix", False),
+            ("  Multiple ranges: '2122411101001 - 015, 020 - 025' (comma-separated)", False),
+            ("  Single number: '2122411101045'", False),
+            ("", False),
+            ("Important Notes:", True),
+            ("  1. Course codes must be mapped in Papers & Mapping tab before uploading students.", False),
+            ("  2. Multiple sheets in one workbook are supported (e.g. FN and AN sessions).", False),
+            ("  3. This template format matches the COE Hall Plan Excel export format.", False),
+        ]
+        for i, (text, bold) in enumerate(notes, 1):
+            cell = ws2.cell(row=i, column=1, value=text)
+            cell.font = Font(bold=bold, size=11 if bold else 10, color="1E3A5F" if bold else "000000")
+        ws2.column_dimensions["A"].width = 90
+
+        wb.save(out_path)
+
+    return FileResponse(
+        out_path,
+        filename="student_upload_template.xlsx",
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
 @app.post("/api/upload/{exam_id}/inspect")
 def inspect_workbook(exam_id: int, file: UploadFile = File(...)):
     """Returns the sheet names found in the uploaded workbook, without
@@ -1060,6 +1238,94 @@ def seat_lookup(exam_id: int, register_no: str, db: Session = Depends(get_db)):
         "column_number": bench.column_number, "seat_label": seat.seat_label,
         "register_no": student.register_no, "name": student.name,
         "class_name": student.class_name, "course_code": student.course_code,
+    }
+
+
+
+# ---------------------------------------------------------------------------
+# AUTO-ALLOCATE PREVIEW
+# ---------------------------------------------------------------------------
+@app.get("/api/auto-allocate/preview/{exam_id}")
+def auto_allocate_preview(exam_id: int, db: Session = Depends(get_db)):
+    """Returns papers in this session with student counts, and all halls with
+    capacity/availability status — used by the Auto-Allocation UI so the admin
+    can choose which papers and halls to include before running the solver."""
+    exam = db.query(models.ExamSession).filter_by(exam_id=exam_id).first()
+    if not exam:
+        raise HTTPException(400, "Unknown exam_id")
+
+    session_papers = db.query(models.SessionPaper).filter_by(exam_id=exam_id).all()
+    papers_info = []
+    for sp in session_papers:
+        paper = db.query(models.Paper).filter_by(paper_id=sp.paper_id).first()
+        if not paper:
+            continue
+        mappings = db.query(models.CourseCodeMapping).filter_by(paper_id=sp.paper_id).all()
+        course_codes = [m.course_code for m in mappings]
+        student_count = 0
+        if course_codes:
+            student_count = (
+                db.query(func.count(models.ExamRegistration.registration_id))
+                .join(models.Student, models.Student.student_id == models.ExamRegistration.student_id)
+                .filter(
+                    models.ExamRegistration.exam_id == exam_id,
+                    models.Student.course_code.in_(course_codes),
+                )
+                .scalar()
+            ) or 0
+        papers_info.append({
+            "paper_id": paper.paper_id,
+            "paper_name": paper.paper_name,
+            "student_count": student_count,
+            "course_codes": course_codes,
+        })
+
+    existing_alloc_count = db.query(func.count(models.Allocation.allocation_id)).filter_by(exam_id=exam_id).scalar() or 0
+    locked_map = _locked_hall_ids_for_exam(db, exam)
+    halls = db.query(models.Hall).order_by(models.Hall.hall_name).all()
+    halls_info = []
+    for h in halls:
+        bench_count = db.query(func.count(models.Bench.bench_id)).filter_by(hall_id=h.hall_id).scalar() or 0
+        total_capacity = bench_count * h.seats_per_bench
+        already_allocated_here = (
+            db.query(func.count(models.Allocation.allocation_id))
+            .join(models.Seat, models.Seat.seat_id == models.Allocation.seat_id)
+            .join(models.Bench, models.Bench.bench_id == models.Seat.bench_id)
+            .filter(
+                models.Bench.hall_id == h.hall_id,
+                models.Allocation.exam_id == exam_id,
+            )
+            .scalar()
+        ) or 0
+        halls_info.append({
+            "hall_id": h.hall_id,
+            "hall_name": h.hall_name,
+            "block": h.block or "",
+            "rows_count": h.rows_count,
+            "cols_count": h.cols_count,
+            "seats_per_bench": h.seats_per_bench,
+            "bench_count": bench_count,
+            "total_capacity": total_capacity,
+            "already_allocated_here": already_allocated_here,
+            "available_seats": total_capacity - already_allocated_here,
+            "locked": h.hall_id in locked_map,
+            "locked_reason": locked_map.get(h.hall_id),
+        })
+
+    total_students = sum(p["student_count"] for p in papers_info)
+    total_available_seats = sum(h["available_seats"] for h in halls_info if not h["locked"])
+
+    return {
+        "exam_id": exam_id,
+        "exam_name": exam.exam_name,
+        "exam_date": exam.exam_date,
+        "session_type": exam.session_type,
+        "papers": papers_info,
+        "halls": halls_info,
+        "total_students": total_students,
+        "total_available_seats": total_available_seats,
+        "has_existing_allocation": existing_alloc_count > 0,
+        "existing_alloc_count": existing_alloc_count,
     }
 
 

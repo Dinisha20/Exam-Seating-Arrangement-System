@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useToast } from '../components/Toast.jsx';
+import { downloadStudentTemplate } from '../utils/downloadTemplate.js';
 
 const API = '/api';
 
@@ -277,19 +278,35 @@ export default function Upload({ currentExamId, exams, onDataChanged, setView })
       <div className="card">
         <div className="flex items-center justify-between mb-1">
           <div className="font-semibold text-sm text-gray-900">Upload Hall Plan Excel</div>
-          {students.length > 0 && (
+          <div className="flex items-center gap-2">
             <button
-              className="btn btn-danger text-xs px-3 py-1.5 flex items-center gap-1.5 shadow-sm"
-              onClick={() => setShowRemoveAllModal(true)}
-              disabled={deleting}
+              onClick={() => {
+                downloadStudentTemplate();
+                showToast('Downloaded student upload template (.xlsx)');
+              }}
+              className="btn border border-indigo-300 text-indigo-700 hover:bg-indigo-50 text-xs px-3 py-1.5 flex items-center gap-1.5 transition"
+              title="Download a sample Excel template (.xlsx) showing the expected format"
             >
-              🗑 Clear Uploaded Students ({students.length})
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download Template
             </button>
-          )}
+            {students.length > 0 && (
+              <button
+                className="btn btn-danger text-xs px-3 py-1.5 flex items-center gap-1.5 shadow-sm"
+                onClick={() => setShowRemoveAllModal(true)}
+                disabled={deleting}
+              >
+                🗑 Clear Uploaded Students ({students.length})
+              </button>
+            )}
+          </div>
         </div>
         <p className="text-xs text-gray-500 mb-3.5">
           Accepts COE hall plan spreadsheets (columns: Year, Class, Course Code, Register Nos., etc.).
-          Register number ranges like "001 - 015, 020 - 025" are expanded automatically.
+          Register number ranges like "001 - 015, 020 - 025" are expanded automatically.{' '}
+          <span className="text-indigo-600 font-medium">Download the template above</span> if you need the correct format.
         </p>
 
         {availableSheets ? (

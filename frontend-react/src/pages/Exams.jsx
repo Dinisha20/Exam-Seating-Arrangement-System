@@ -93,8 +93,36 @@ export default function Exams({ exams, currentExamId, setCurrentExamId, onDataCh
     resetForm();
   };
 
+  const cleanupExpired = async () => {
+    try {
+      let res;
+      try {
+        res = await apiPost('/exams-cleanup-expired');
+      } catch {
+        res = await apiPost('/exams/cleanup-expired');
+      }
+      if (res && res.removed > 0) {
+        showToast(`Cleaned up ${res.removed} expired exam session(s)`);
+      } else {
+        showToast('No expired exam sessions to remove');
+      }
+      onDataChanged();
+    } catch (e) {
+      showToast(e.error || 'Failed to remove expired sessions', true);
+    }
+  };
+
   const saveExam = async () => {
     if (!examName.trim()) return showToast('Enter an exam name', true);
+    
+    // Client-side date check
+    if (examDate) {
+      const todayStr = new Date().toLocaleDateString('en-CA');
+      if (examDate < todayStr) {
+        return showToast('Cannot create/save an exam session with an expired date', true);
+      }
+    }
+
     try {
       if (editingExamId) {
         await apiPut(`/exams/${editingExamId}`, {
@@ -201,7 +229,13 @@ export default function Exams({ exams, currentExamId, setCurrentExamId, onDataCh
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="form-label">Date</label>
-                  <input type="date" className="form-input text-xs" value={examDate} onChange={(e) => setExamDate(e.target.value)} />
+                  <input
+                    type="date"
+                    className="form-input text-xs"
+                    value={examDate}
+                    min={new Date().toLocaleDateString('en-CA')}
+                    onChange={(e) => setExamDate(e.target.value)}
+                  />
                 </div>
                 <div>
                   <label className="form-label">Session Slot</label>
@@ -228,7 +262,7 @@ export default function Exams({ exams, currentExamId, setCurrentExamId, onDataCh
                   />
                 </div>
                 <p className="text-[11px] text-gray-400 mt-1.5 leading-relaxed">
-                  Recorded for hall plans and export sheets. Hall conflicts are automatically guarded by date + FN/AN session.
+                  Recorded for hall plans and export sheets. Hall conflicts are automatically guarded by date + FN/AN session. Expired sessions are automatically removed.
                 </p>
               </div>
 
@@ -257,7 +291,16 @@ export default function Exams({ exams, currentExamId, setCurrentExamId, onDataCh
                 <span>Configured Exam Sessions</span>
                 <span className="badge bg-indigo-50 text-indigo-700 font-bold">{exams.length}</span>
               </div>
-              <span className="text-xs text-gray-400">Click a session to make it active</span>
+              <button
+                onClick={cleanupExpired}
+                className="btn text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2.5 py-1 flex items-center gap-1.5 transition"
+                title="Remove any expired or past exam sessions"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>Clean Up Expired</span>
+              </button>
             </div>
 
             {exams.length === 0 ? (

@@ -6,12 +6,12 @@ const ADJACENCY_OPTIONS = [
   {
     value: 'bench_only',
     label: 'Bench only',
-    description: 'Same paper can\'t share a bench, but may sit at the bench directly beside or behind. Loosest — fits more students per hall.',
+    description: "Same paper can't share a bench, but may sit at the bench directly beside or behind. Loosest — fits more students per hall.",
   },
   {
     value: 'left_right',
     label: 'Bench + left/right neighbour (recommended)',
-    description: 'Same paper can\'t share a bench or sit at the bench immediately left/right in the same row. Matches the standard 2-per-bench exam hall setup.',
+    description: "Same paper can't share a bench or sit at the bench immediately left/right in the same row. Matches the standard 2-per-bench exam hall setup.",
   },
   {
     value: 'full_grid',
@@ -30,18 +30,27 @@ export default function Generate({ currentExamId, onDataChanged, setView }) {
   const [result, setResult] = useState(null);
   const [candidates, setCandidates] = useState(null);
   const [confirming, setConfirming] = useState(false);
+  // Hall selector is hidden by default — only shown when user clicks "Halls Unavailable?"
+  const [showHallSelector, setShowHallSelector] = useState(false);
 
   useEffect(() => {
     if (!currentExamId) return;
+    setResult(null);
+    setCandidates(null);
+    setShowHallSelector(false);
     (async () => {
-      const h = await apiGet(`/halls?for_exam_id=${currentExamId}`);
-      setHalls(h);
-      setSelected(new Set(h.filter((x) => !x.locked).map((x) => x.hall_id)));
+      try {
+        const h = await apiGet(`/halls?for_exam_id=${currentExamId}`);
+        setHalls(h);
+        // Auto-select all non-locked halls
+        setSelected(new Set(h.filter((x) => !x.locked).map((x) => x.hall_id)));
+      } catch {
+        setHalls([]);
+      }
     })();
   }, [currentExamId]);
 
-  // Fetch an auto-suggested adjacency mode whenever the hall selection
-  // changes — a recommendation only, admin still picks the actual mode.
+  // Auto-suggest adjacency whenever hall selection changes
   useEffect(() => {
     if (!currentExamId || selected.size === 0) {
       setSuggestion(null);
@@ -76,7 +85,7 @@ export default function Generate({ currentExamId, onDataChanged, setView }) {
   };
 
   const generate = async () => {
-    if (selected.size === 0) return showToast('Select at least one hall', true);
+    if (selected.size === 0) return showToast('No halls available — mark halls as unavailable to deselect some, or add halls first', true);
     setBusy(true);
     setResult(null);
     setCandidates(null);
@@ -95,7 +104,7 @@ export default function Generate({ currentExamId, onDataChanged, setView }) {
   };
 
   const generateOptions = async () => {
-    if (selected.size === 0) return showToast('Select at least one hall', true);
+    if (selected.size === 0) return showToast('No halls available — mark halls as unavailable to deselect some, or add halls first', true);
     setBusy(true);
     setResult(null);
     setCandidates(null);
@@ -135,9 +144,13 @@ export default function Generate({ currentExamId, onDataChanged, setView }) {
   };
 
   const lockedCount = halls.filter((h) => h.locked).length;
+  const availableHalls = halls.filter((h) => !h.locked);
+  const deselectedCount = availableHalls.filter((h) => !selected.has(h.hall_id)).length;
 
   return (
     <div className="card max-w-2xl">
+
+      {/* ── Adjacency Rule ─────────────────────────────────── */}
       <div className="font-semibold text-sm mb-1">Anti-cheating adjacency rule</div>
       <p className="text-xs text-gray-500 mb-3">
         Choose how strictly the solver keeps students writing the same paper apart. Stricter settings
@@ -176,57 +189,136 @@ export default function Generate({ currentExamId, onDataChanged, setView }) {
         </label>
       ))}
 
-      <div className="font-semibold text-sm mt-5 mb-1">Select halls to use for this session</div>
-      {lockedCount > 0 && (
-        <div className="alert alert-info">
-          {lockedCount} hall{lockedCount > 1 ? 's are' : ' is'} already booked for the other session
-          (FN/AN) on this exam's date and can't be selected here — greyed out below.
-        </div>
-      )}
-      {halls.length === 0 ? (
-        <div className="text-center py-8 text-gray-400 text-sm">No halls configured — add halls first</div>
-      ) : (
-        halls.map((h) => (
-          <div key={h.hall_id} className={`flex items-center gap-2 py-2 ${h.locked ? 'opacity-50' : ''}`}>
-            <input
-              type="checkbox"
-              id={`hall_${h.hall_id}`}
-              checked={selected.has(h.hall_id)}
-              disabled={h.locked}
-              onChange={() => toggle(h.hall_id, h.locked)}
-            />
-            <label htmlFor={`hall_${h.hall_id}`} className="text-sm">
-              <b>{h.hall_name}</b> — {h.capacity} seats ({h.rows_count}&times;{h.cols_count}, {h.seats_per_bench}/bench)
-              {h.locked && <span className="text-xs text-amber ml-2">({h.locked_reason})</span>}
-            </label>
-          </div>
-        ))
-      )}
-
-      <div className="flex gap-2 mt-3.5 flex-wrap items-center">
-        <button className="btn btn-primary" disabled={halls.length === 0 || busy} onClick={generate}>
-          {busy ? 'Generating…' : 'Generate seating'}
-        </button>
-        <button className="btn btn-outline" disabled={halls.length === 0 || busy} onClick={generateOptions}>
-          {busy ? 'Generating…' : 'Generate multiple options to compare'}
-        </button>
+      {/* ── Hall Status Summary + Unavailable Toggle ───────── */}
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        {/* Seat capacity pill */}
         {suggestion && (
-          <span className={`text-xs font-medium px-2 py-1 rounded ${
+          <span className={`text-xs font-medium px-2.5 py-1.5 rounded-lg border ${
             suggestion.total_students > suggestion.total_seats
-              ? 'bg-red-100 text-red-700'
+              ? 'bg-red-50 text-red-700 border-red-200'
               : suggestion.total_students > suggestion.total_seats * 0.9
-              ? 'bg-amber-100 text-amber-700'
-              : 'bg-green-100 text-green-700'
+              ? 'bg-amber-50 text-amber-700 border-amber-200'
+              : 'bg-green-50 text-green-700 border-green-200'
           }`}>
-            {suggestion.total_students} students / {suggestion.total_seats} seats
+            🪑 {suggestion.total_students} students / {suggestion.total_seats} seats
             {suggestion.total_students > suggestion.total_seats
               ? ` — ⚠ ${suggestion.total_students - suggestion.total_seats} more seat(s) needed!`
-              : ` — ${suggestion.total_seats - suggestion.total_students} seat(s) to spare`}
+              : ` — ${suggestion.total_seats - suggestion.total_students} spare`}
           </span>
+        )}
+
+        {/* Halls pill */}
+        <span className="text-xs font-medium px-2.5 py-1.5 rounded-lg border bg-indigo-50 text-indigo-700 border-indigo-200">
+          🏫 {selected.size} hall{selected.size !== 1 ? 's' : ''} in use
+          {deselectedCount > 0 && <span className="ml-1 text-amber-600">({deselectedCount} excluded)</span>}
+          {lockedCount > 0 && <span className="ml-1 text-gray-400">· {lockedCount} locked</span>}
+        </span>
+
+        {/* Halls Unavailable toggle button */}
+        {halls.length > 0 && (
+          <button
+            className={`btn text-xs px-3.5 py-1.5 flex items-center gap-1.5 border transition ${
+              showHallSelector
+                ? 'bg-amber-100 border-amber-400 text-amber-800 hover:bg-amber-200'
+                : 'bg-white border-amber-300 text-amber-700 hover:bg-amber-50'
+            }`}
+            onClick={() => setShowHallSelector((v) => !v)}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            {showHallSelector ? 'Hide Halls' : 'Halls Unavailable?'}
+          </button>
         )}
       </div>
 
+      {/* ── Collapsible Hall Selector ──────────────────────── */}
+      {showHallSelector && (
+        <div className="mt-3 border border-amber-200 rounded-xl p-4 bg-amber-50/40 space-y-2">
+          <div className="flex items-center justify-between mb-1">
+            <div>
+              <div className="text-sm font-semibold text-amber-800">Mark halls unavailable for this session</div>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Uncheck any hall that cannot be used. Locked halls (used by sibling FN/AN session) are greyed out.
+              </p>
+            </div>
+          </div>
 
+          {lockedCount > 0 && (
+            <div className="alert alert-info text-xs py-2">
+              {lockedCount} hall{lockedCount > 1 ? 's are' : ' is'} locked — already booked for the other session (FN/AN) on this date.
+            </div>
+          )}
+
+          {halls.length === 0 ? (
+            <div className="text-center py-6 text-gray-400 text-sm">No halls configured — add halls first</div>
+          ) : (
+            halls.map((h) => (
+              <div
+                key={h.hall_id}
+                className={`flex items-center gap-3 py-2 px-3 rounded-lg border transition cursor-pointer ${
+                  h.locked
+                    ? 'opacity-50 bg-gray-50 border-gray-200 cursor-not-allowed'
+                    : selected.has(h.hall_id)
+                    ? 'bg-white border-green-200 hover:border-green-300'
+                    : 'bg-red-50/50 border-red-200 hover:border-red-300'
+                }`}
+                onClick={() => toggle(h.hall_id, h.locked)}
+              >
+                <input
+                  type="checkbox"
+                  id={`hall_${h.hall_id}`}
+                  checked={selected.has(h.hall_id)}
+                  disabled={h.locked}
+                  onChange={() => toggle(h.hall_id, h.locked)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <label htmlFor={`hall_${h.hall_id}`} className="text-sm flex-1 cursor-pointer">
+                  <b>{h.hall_name}</b>
+                  <span className="text-gray-500 ml-2">
+                    — {h.capacity} seats ({h.rows_count}×{h.cols_count}, {h.seats_per_bench}/bench)
+                  </span>
+                  {h.locked && <span className="text-xs text-amber-600 ml-2">({h.locked_reason})</span>}
+                </label>
+                {!h.locked && (
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                    selected.has(h.hall_id) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
+                  }`}>
+                    {selected.has(h.hall_id) ? 'In use' : 'Excluded'}
+                  </span>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* ── Generate Buttons ───────────────────────────────── */}
+      <div className="flex gap-2 mt-5 flex-wrap items-center">
+        <button
+          className="btn btn-primary"
+          disabled={halls.length === 0 || busy || selected.size === 0}
+          onClick={generate}
+        >
+          {busy ? 'Generating…' : 'Generate seating'}
+        </button>
+        <button
+          className="btn btn-outline"
+          disabled={halls.length === 0 || busy || selected.size === 0}
+          onClick={generateOptions}
+        >
+          {busy ? 'Generating…' : 'Generate multiple options to compare'}
+        </button>
+        {halls.length === 0 && (
+          <span className="text-xs text-red-600">No halls configured — add halls first</span>
+        )}
+        {halls.length > 0 && selected.size === 0 && (
+          <span className="text-xs text-red-600">All halls excluded — re-enable at least one above</span>
+        )}
+      </div>
+
+      {/* ── Candidates (multiple options) ─────────────────── */}
       {candidates && (
         <div className="mt-5">
           <div className="font-semibold text-sm mb-3">
@@ -266,6 +358,7 @@ export default function Generate({ currentExamId, onDataChanged, setView }) {
         </div>
       )}
 
+      {/* ── Result ─────────────────────────────────────────── */}
       {result && (
         <div className="mt-4">
           {result.ok ? (

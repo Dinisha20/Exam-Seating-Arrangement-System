@@ -102,6 +102,7 @@ function AppInner() {
           {view === 'exams' && <Exams {...pageProps} />}
           {view === 'upload' && <Upload {...pageProps} />}
           {view === 'generate' && <Generate {...pageProps} />}
+          {view === 'autoallocate' && <AutoAllocate {...pageProps} />}
           {view === 'seatmap' && <SeatMap {...pageProps} />}
           {view === 'lookup' && <Lookup {...pageProps} />}
         </main>
